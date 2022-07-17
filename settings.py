@@ -11,8 +11,8 @@ class Settings:
     
     def __init__(self):
 
-        self.screen_width = 1000
-        self.screen_height = 600
+        self.screen_width = 960
+        self.screen_height = 640
         self.intro_count = 3
         self.round_over_cooldown = 2000
         self.fps = 60

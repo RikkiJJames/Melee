@@ -10,7 +10,6 @@ class Fighter():
         self.scale = data[3]
         self.offset = data[4]
         self.flip = flip
-        self.rect = pygame.Rect((x, y, 50, 80))
         self.vel_y = 0
         self.jump = False
         self.moving = False
@@ -50,6 +49,7 @@ class Fighter():
                            }
         self.load_images()
         self.image = self.states[self.action]["images"][self.frame_index]
+        self.rect = pygame.Rect((x, y, data[5][0] * self.scale, data[5][1] * self.scale))
         self.update_time = pygame.time.get_ticks()
         
         
@@ -59,7 +59,6 @@ class Fighter():
         
         for state in states :
             file_name = self.states[state]["url"]
-            print(f" FILENAME IS: {file_name}")
             sprite_sheet = SpriteSheet(file_name)
 
             for step in range(self.states[state]["animation_properties"]["steps"]):
@@ -220,10 +219,12 @@ class Fighter():
             
     
     def attack(self, surface, target):
+        
+        attack_distance = 2
         if self.attack_cooldown == 0:
             self.attack_sound.play()
             self.attacking = True    
-            attacking_rect = pygame.Rect(self.rect.centerx - (1.5 * self.rect.width * self.flip), self.rect.y, 1.5 * self.rect.width, self.rect.height)
+            attacking_rect = pygame.Rect(self.rect.centerx - (attack_distance * self.rect.width * self.flip), self.rect.y, attack_distance * self.rect.width, self.rect.height)
             
             if attacking_rect.colliderect(target.rect):
                 target.health -= 10
@@ -244,5 +245,4 @@ class Fighter():
         
         img = pygame.transform.flip(self.image, self.flip, False)
         #pygame.draw.rect(surface, (255,0,0) , self.rect)
-        surface.blit(img, (self.rect.x - (self.offset[0] * self.scale), self.rect.y - (self.offset[1] * self.scale)))        
-        
+        surface.blit(img, ((self.rect.x - (self.offset[0] * self.scale)), (self.rect.y - (self.offset[1] * self.scale))))        

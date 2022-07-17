@@ -7,7 +7,7 @@ class Character_Data:
     def __init__(self, class_name):
         
         self.class_name = class_name
-        self.file_root = f"images/characters/{self.class_name}"
+        self.file_root = f"images/characters/{self.class_name}/"
         self.idle_steps = self.get_data(class_name, "idle")
         self.move_steps = self.get_data(class_name, "move")
         self.jump_steps = self.get_data(class_name, "jump")
@@ -15,10 +15,12 @@ class Character_Data:
         self.attack_steps = self.get_data(class_name, "attack")
         self.damage_steps = self.get_data(class_name, "damage")
         self.die_steps = self.get_data(class_name, "die")
-        self.size = self.get_data(class_name, "size")
+        self.size = self.get_data(class_name, "image_size")
         self.scale = self.get_data(class_name, "scale")
         self.offset_x = self.get_data(class_name, "offset_x")
         self.offset_y = self.get_data(class_name, "offset_y")
+        self.sprite_size_x = self.get_data(class_name, "sprite_size_x")
+        self.sprite_size_y = self.get_data(class_name, "sprite_size_y")
         
     def get_data(self, class_name, header):
         with open("characters.csv", newline="") as file:
@@ -51,7 +53,7 @@ class Character_Data:
             else:
                 return int(rows[row_index][index_pos])
         
-class Character():
+class Characters():
     
     def __init__(self, class_name, name):
         self.name = name
@@ -63,12 +65,9 @@ class Character():
         self.size = self.character_data.size
         self.scale = self.character_data.scale
         self.offset = [self.character_data.offset_x, self.character_data.offset_y]
-        self.data = [self.character_data.file_root, self.size, self.animation_steps, self.scale, self.offset]
+        self.sprite_size = [self.character_data.sprite_size_x, self.character_data.sprite_size_y]
+        self.data = [self.character_data.file_root, self.size, self.animation_steps, self.scale, self.offset, self.sprite_size]
     
     def new_character(self):
         
         return self.data
-
-k = Character("Wizard","Rikki")
-
-print(k.new_character())
