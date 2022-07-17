@@ -35,7 +35,10 @@ class Fighter():
                        "fall":{"url":f"{data[0]}Fall.png",
                               "animation_properties":{"steps":data[2]["jump"],"width":self.size,"height":self.size},
                               "images": []},
-                       "attack":{"url":f"{data[0]}Attack.png",
+                       "attack_1":{"url":f"{data[0]}Attack_1.png",
+                                 "animation_properties":{"steps":data[2]["attack"],"width":self.size,"height":self.size},
+                                 "images": []},
+                       "attack_2":{"url":f"{data[0]}Attack_2.png",
                                  "animation_properties":{"steps":data[2]["attack"],"width":self.size,"height":self.size},
                                  "images": []},
                        "damage":{"url":f"{data[0]}Damage.png",
@@ -95,9 +98,12 @@ class Fighter():
                 #attacks
                 
                 if key[pygame.K_SPACE]:
+                    self.attack_type = 1
+                    self.attack(surface, target)
+                elif key[pygame.K_r]:
+                    self.attack_type = 2
                     self.attack(surface, target)
                     
-            
             if self.player == 2:
                 if key[pygame.K_LEFT]:
                     dx = -SPEED
@@ -114,7 +120,12 @@ class Fighter():
                 #attacks
                 
                 if key[pygame.K_l]:
+                    self.attack_type = 1
                     self.attack(surface, target)
+                elif key[pygame.K_p]:
+                    self.attack_type = 2
+                    self.attack(surface, target)
+                    
                     
         
         #apply gravity  
@@ -127,10 +138,10 @@ class Fighter():
             dx = -self.rect.left
         if self.rect.right + dx > screen_width:
               dx = screen_width - self.rect.right
-        if self.rect.bottom + dy > screen_height - 500:
+        if self.rect.bottom + dy > screen_height - 0:
             self.vel_y = 0
             self.jump = False
-            dy = screen_height - 500 - self.rect.bottom
+            dy = screen_height - 0 - self.rect.bottom
             
             
         #ensure players face each other
@@ -160,8 +171,10 @@ class Fighter():
             self.update_action("die")
         elif self.hit == True:
             self.update_action("damage")
-        elif self.attacking == True:
-            self.update_action("attack")
+        elif self.attacking == True and self.attack_type == 1:
+            self.update_action("attack_1")
+        elif self.attacking == True and self.attack_type == 2:
+            self.update_action("attack_2")
         elif self.jump == True:
             self.update_action("jump")
         elif self.moving == True:
@@ -189,7 +202,7 @@ class Fighter():
             
             #check if attack was executed
             
-            if self.action == "attack":
+            if self.action == "attack_1" or self.action == "attack_2":
                 self.attacking = False
                 self.attack_cooldown = 20
             

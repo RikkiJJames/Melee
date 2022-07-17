@@ -3,12 +3,13 @@
 import pygame, sys
 from fighter import Fighter
 from pygame import mixer
+from settings import Settings
+from characters import King, Warrior, Samurai, Ninja
 
 mixer.init()
 pygame.init()
+settings = Settings()
 
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 600
 
 #define colours
 
@@ -17,7 +18,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 #define game variables
-intro_count = 3
+intro_count = settings.intro_count
 last_count_update = pygame.time.get_ticks()
 score = [0,0]
 round_over = False
@@ -26,44 +27,26 @@ ROUND_OVER_COOLDOWN = 2000
 
 
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
 pygame.display.set_caption("Melee")
 
 #load music and sounds
 pygame.mixer.music.load("images/Music/menu.mp3")
-pygame.mixer.music.set_volume(0.5)
-#pygame.mixer.music.play(-1, 0.0, 5000)
+pygame.mixer.music.set_volume(settings.volume)
+pygame.mixer.music.play(-1, 0.0, 5000)
 
 sword_fx = pygame.mixer.Sound("images/characters/Warrior/sword_attack.wav")
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(settings.volume)
 
 magic_fx = pygame.mixer.Sound("images/characters/Wizard/fire_attack.wav")
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(settings.volume)
 
 #load background image
 bg_image = pygame.image.load("images/background/water.jpg").convert_alpha()
 
-#load spritesheets
-
-warrior_file_root = "images/characters/Warrior/"
-wizard_file_root = "images/characters/Wizard/"
-
-warrior_animation_steps = {"idle":10, "move": 8, "jump":3, "fall": 3, "attack": 7, "damage": 3, "die": 7}
-wizard_animation_steps = {"idle":8, "move": 8,"jump":2, "fall": 2, "attack": 8, "damage": 3, "die": 7}
-
-#define fighter variables
-warrior_size = 162
-warrior_scale = 1.3
-warrior_offset = [60, 38]
-warrior_data = [warrior_file_root, warrior_size, warrior_animation_steps, warrior_scale, warrior_offset]
-wizard_size = 250
-wizard_scale = 1.3
-wizard_offset = [110, 105]
-wizard_data = [wizard_file_root, wizard_size, wizard_animation_steps, wizard_scale, wizard_offset]
-
 
 clock = pygame.time.Clock()
-FPS = 60
+FPS = settings.fps
 
 #define font
 
@@ -71,7 +54,9 @@ count_font = pygame.font.Font("images/Fonts/Turok.ttf", 80)
 score_font = pygame.font.Font("images/Fonts/Turok.ttf", 30)
 
 
-#function for drawing text
+#character select
+p1 = King("Rikki")
+p2 = Ninja("Deeya")
 
 def draw_text(text, font, text_colour, x, y):
     img = font.render(text, True, text_colour)
@@ -81,27 +66,29 @@ def draw_text(text, font, text_colour, x, y):
 
 def draw_bg():
     
-    scaled_bg = pygame.transform.scale(bg_image, (SCREEN_WIDTH,SCREEN_HEIGHT))
+    scaled_bg = pygame.transform.scale(bg_image, (settings.screen_width,settings.screen_height))
     screen.blit(scaled_bg, (0, 0))
 
 # function for drawing fighter health bars
 
 def draw_health_bar(health, x, y):
     ratio = health / 100
-    pygame.draw.rect(screen, WHITE, (x - 2, y - 2, 404, 34))
-    pygame.draw.rect(screen, RED, (x, y, 400, 30))
-    pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
+    pygame.draw.rect(screen, settings.colours["WHITE"], (x - 2, y - 2, 404, 34))
+    pygame.draw.rect(screen, settings.colours["RED"], (x, y, 400, 30))
+    pygame.draw.rect(screen, settings.colours["YELLOW"], (x, y, 400 * ratio, 30))
+    
     
 # create fighter instances
 
-fighter_1 = Fighter(1, 100, 300, False, warrior_data, sword_fx)
-fighter_2 = Fighter(2, 700, 310, True, wizard_data, magic_fx)
+fighter_1 = Fighter(1, 100, 300, False, p1.new_character(), sword_fx)
+fighter_2 = Fighter(2, 700, 310, True, p2.new_character(), magic_fx)
+
 
 run = True
 
 while run:
     
-    clock.tick(FPS)
+    clock.tick(settings.fps)
     # draw background
     draw_bg()
     
@@ -109,18 +96,20 @@ while run:
     
     draw_health_bar(fighter_1.health, 20, 20)
     draw_health_bar(fighter_2.health, 580, 20)
-    draw_text("P1: " + str(score[0]), score_font, RED, 20, 60)
-    draw_text("P2: " + str(score[1]), score_font, RED, 580, 60)
+    draw_text(f"{p1.name}: " + str(score[0]), score_font, RED, 20, 60)
+    draw_text(f"{p2.name}: " + str(score[1]), score_font, RED, 580, 60)
+    
     
     #update countdown
     
     if intro_count <= 0:
         #move players
-        fighter_1.move(SCREEN_WIDTH, SCREEN_WIDTH, screen, fighter_2)
-        fighter_2.move(SCREEN_WIDTH, SCREEN_WIDTH, screen, fighter_1)
+        fighter_1.move(settings.screen_width, settings.screen_height, screen, fighter_2)
+        fighter_2.move(settings.screen_width, settings.screen_height, screen, fighter_1)
+
     else:
         #display count timer
-        draw_text(str(intro_count), count_font, RED, SCREEN_WIDTH / 2, SCREEN_HEIGHT/ 3)
+        draw_text(str(intro_count), count_font, RED, settings.screen_width / 2, settings.screen_height/ 3)
         
         if pygame.time.get_ticks() - last_count_update >= 1000:
             intro_count -= 1
@@ -136,7 +125,7 @@ while run:
     
     fighter_1.draw(screen)
     fighter_2.draw(screen)
-    
+
     
     #check for player defeat
     if round_over == False:
@@ -144,15 +133,14 @@ while run:
             score[1] += 1
             round_over = True
             round_over_time = pygame.time.get_ticks()
-            print(score)
         elif fighter_2.death == True:
             score[0] += 1
             round_over = True
             round_over_time = pygame.time.get_ticks()
             print(score)
     else:
-        draw_text("VICTORY", count_font, RED, SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT/ 3)
-        if pygame.time.get_ticks() - round_over_time > ROUND_OVER_COOLDOWN:
+        draw_text("VICTORY", count_font, RED, settings.screen_width / 2 - 120, settings.screen_height/ 3)
+        if pygame.time.get_ticks() - round_over_time > settings.round_over_cooldown:
             round_over = False
             intro_count = 3
             fighter_1 = Fighter(1, 100, 300, False, warrior_data, sword_fx)
