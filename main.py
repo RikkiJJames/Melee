@@ -90,7 +90,7 @@ def draw_health_bar(health, x, y):
 fighter_1 = Fighter(1, 20, 300, False, p1.new_character(), sword_fx)
 fighter_2 = Fighter(2, 1200, 310, True, p2.new_character(), magic_fx)
 
-
+print(stages.tile_list)
 run = True
 
 while run:
@@ -104,22 +104,23 @@ while run:
     clock.tick(settings.fps)
     # draw background
     draw_bg()
+    #stages.draw_grid(screen, screen_w, screen_h)
+    #stages.draw(screen)
     
     #show player stats
-    
     draw_health_bar(fighter_1.health, 20, 20)
     draw_health_bar(fighter_2.health, -20 + (screen_w/3) * 2, 20)
     draw_text(f"{p1.name}: " + str(score[0]), score_font, RED, 20, 60)
     draw_text(f"{p2.name}: " + str(score[1]), score_font, RED, (screen_w/3) * 2, 60)
-    stages.draw_grid(screen, screen_w, screen_h)
+    
     
     
     #update countdown
     
     if intro_count <= 0:
         #move players
-        fighter_1.move(screen_w, screen_h, screen, fighter_2)
-        fighter_2.move(screen_w, screen_h, screen, fighter_1)
+        fighter_1.move(screen_w, screen_h, screen, fighter_2, stages)
+        fighter_2.move(screen_w, screen_h, screen, fighter_1, stages)
 
     else:
         #display count timer

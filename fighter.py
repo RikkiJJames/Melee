@@ -50,6 +50,8 @@ class Fighter():
         self.load_images()
         self.image = self.states[self.action]["images"][self.frame_index]
         self.rect = pygame.Rect((x, y, data[5][0] * self.scale, data[5][1] * self.scale))
+        self.width = data[5][0] * self.scale
+        self.height = data[5][1] * self.scale
         self.update_time = pygame.time.get_ticks()
         
         
@@ -66,7 +68,7 @@ class Fighter():
         
     
             
-    def move(self, screen_width, screen_height, surface, target):
+    def move(self, screen_width, screen_height, surface, target, stage):
         
         SPEED = 5
         GRAVITY = 2
@@ -141,9 +143,38 @@ class Fighter():
             self.vel_y = 0
             self.jump = False
             dy = screen_height - 0 - self.rect.bottom
+        
+        #ensure player stays on level
+        
+        for tile in stage.tile_list:
+            
+            
+        #check for collision in x direction
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+        #check for collision in y direction
+        
+            elif tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+            
+            #check if below the ground (jumping)
+            
+                if self.vel_y <= 0:
+                    dy = tile[1].bottom - self.rect.top
+                    self.vel_y = 0
+                    self.jump = False
+                    
+            
+            #check if above the ground (jumping)
+            
+                elif self.vel_y > 0:
+                    dy = tile[1].top - self.rect.bottom
+                    self.vel_y = 0
+                    self.jump = False
+                    
             
             
         #ensure players face each other
+        
         
         if target.rect.centerx > self.rect.centerx:
             self.flip = False
@@ -155,6 +186,7 @@ class Fighter():
         
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
+            
         #update position 
         
         self.rect.x += dx
@@ -213,10 +245,7 @@ class Fighter():
             #if player was in the middle of attack then it's stopped
                 self.attacking = False
                 self.attack_cooldown = 20
-                
-            #if player dies
-            
-            
+
     
     def attack(self, surface, target):
         
