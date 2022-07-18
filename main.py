@@ -6,6 +6,7 @@ from pygame import mixer
 from settings import Settings
 from characters import Characters
 from stages import Stages
+from tiledmap import TiledMap
 
 mixer.init()
 settings = Settings()
@@ -45,8 +46,11 @@ magic_fx = pygame.mixer.Sound("images/characters/Wizard/fire_attack.wav")
 pygame.mixer.music.set_volume(settings.volume)
 
 #load random background image
-stages = Stages(screen_w, screen_h)
-bg_image = pygame.image.load("images/background/misty.jpg").convert_alpha()
+tiled_map = TiledMap()
+map_rect = tiled_map.map_image.get_rect()
+
+#stages = Stages(screen_w, screen_h)
+#bg_image = pygame.image.load("images/background/misty.jpg").convert_alpha()
 
 
 clock = pygame.time.Clock()
@@ -62,8 +66,8 @@ score_font = pygame.font.Font("images/Fonts/Turok.ttf", 30)
 
 characters = ["king", "ninja", "samurai", "warrior", "wizard"]
 
-p1 = Characters("wizard","Player 1")
-p2 = Characters("samurai","Player 2")
+p1 = Characters("warrior","Player 1")
+p2 = Characters("ninja","Player 2")
 
 def draw_text(text, font, text_colour, x, y):
     img = font.render(text, True, text_colour)
@@ -73,8 +77,10 @@ def draw_text(text, font, text_colour, x, y):
 
 def draw_bg():
     
-    scaled_bg = pygame.transform.scale(bg_image, (screen_w,screen_h))
+
+    scaled_bg = pygame.transform.scale(tiled_map.map_image, (screen_w,screen_h))
     screen.blit(scaled_bg, (0, 0))
+
 
 # function for drawing fighter health bars
 
@@ -87,10 +93,11 @@ def draw_health_bar(health, x, y):
     
 # create fighter instances
 
-fighter_1 = Fighter(1, 20, 300, False, p1.new_character(), sword_fx)
-fighter_2 = Fighter(2, 1200, 310, True, p2.new_character(), magic_fx)
+player1, player2 = tiled_map.spawn_players()
 
-print(stages.tile_list)
+fighter_1 = Fighter(1, player1[0], player1[1], False, p1.new_character(), tiled_map, sword_fx)
+fighter_2 = Fighter(2, player2[0], player2[1], True, p2.new_character(), tiled_map, magic_fx)
+
 run = True
 
 while run:
@@ -104,14 +111,16 @@ while run:
     clock.tick(settings.fps)
     # draw background
     draw_bg()
+    #pygame.draw.rect(screen,(255,255,255),pygame.Rect(0,315,105,400))
     #stages.draw_grid(screen, screen_w, screen_h)
     #stages.draw(screen)
     
     #show player stats
-    draw_health_bar(fighter_1.health, 20, 20)
-    draw_health_bar(fighter_2.health, -20 + (screen_w/3) * 2, 20)
-    draw_text(f"{p1.name}: " + str(score[0]), score_font, RED, 20, 60)
-    draw_text(f"{p2.name}: " + str(score[1]), score_font, RED, (screen_w/3) * 2, 60)
+    draw_health_bar(fighter_1.health, 20, 50)
+    draw_health_bar(fighter_2.health, -20 + (screen_w/3) * 2, 50)
+    draw_text(f"{p1.name}: " + str(score[0]), score_font, RED, 20, 80)
+    draw_text(f"{p2.name}: " + str(score[1]), score_font, RED, (screen_w/3) * 2, 80)
+    
     
     
     
@@ -119,8 +128,8 @@ while run:
     
     if intro_count <= 0:
         #move players
-        fighter_1.move(screen_w, screen_h, screen, fighter_2, stages)
-        fighter_2.move(screen_w, screen_h, screen, fighter_1, stages)
+        fighter_1.move(screen_w, screen_h, screen, fighter_2, tiled_map.map_image)
+        fighter_2.move(screen_w, screen_h, screen, fighter_1, tiled_map.map_image)
 
     else:
         #display count timer
@@ -157,13 +166,11 @@ while run:
         if pygame.time.get_ticks() - round_over_time > settings.round_over_cooldown:
             round_over = False
             intro_count = 3
-            fighter_1 = Fighter(1, 100, 300, False, p1.new_character(), sword_fx)
-            fighter_2 = Fighter(2, 700, 310, True, p2.new_character(), magic_fx)
-            bg_image = pygame.image.load(stages.select_stage()).convert_alpha()
+            fighter_1 = Fighter(1, player1[0], player1[1], False, p1.new_character(), sword_fx)
+            fighter_2 = Fighter(2, player2[0], player2[1], True, p2.new_character(), magic_fx)
+            #bg_image = pygame.image.load(stages.select_stage()).convert_alpha()
 
-    
-                
-    
+
     #update display
     pygame.display.update()
             

@@ -4,7 +4,7 @@ from spritesheet import SpriteSheet
 
 class Fighter():
     
-    def __init__(self,player, x, y, flip, data, sound):
+    def __init__(self,player, x, y, flip, data,tiled_map, sound):
         self.player = player
         self.size = data[1]
         self.scale = data[3]
@@ -14,13 +14,14 @@ class Fighter():
         self.jump = False
         self.moving = False
         self.attacking = False
+        self.hit = False
+        self.death = False
         self.attack_type = 0
         self.attack_cooldown = 0
         self.attack_sound = sound
-        self.hit = False
         self.action = "idle"
-        self.health = 10
-        self.death = False
+        self.health = 100
+        self.map = tiled_map
         self.frame_index = 0
         self.states = {"idle":{"url":f"{data[0]}Idle.png",
                                "animation_properties":{"steps":data[2]["idle"],"width":self.size,"height":self.size},
@@ -66,12 +67,12 @@ class Fighter():
             for step in range(self.states[state]["animation_properties"]["steps"]):
                 self.states[state]["images"].append(sprite_sheet.get_sprite(step, self.states[state]["animation_properties"]["width"],self.states[state]["animation_properties"]["height"] , self.scale))
         
-    
             
+        
     def move(self, screen_width, screen_height, surface, target, stage):
         
-        SPEED = 5
-        GRAVITY = 2
+        SPEED = 4
+        GRAVITY = 1.5
         dx = 0
         dy = 0
         self.moving = False
@@ -146,32 +147,31 @@ class Fighter():
         
         #ensure player stays on level
         
-        for tile in stage.tile_list:
+        for hole in self.map.holes:
             
-            
+            if hole.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                self.health = 0
+                self.death = True
+
         #check for collision in x direction
-            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+        for platform in self.map.platforms:
+            if platform.rect.colliderect(self.rect.x + dx,self.rect.y, self.width, self.height):
                 dx = 0
-        #check for collision in y direction
-        
-            elif tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-            
+            elif platform.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                dy = 0
             #check if below the ground (jumping)
             
                 if self.vel_y <= 0:
-                    dy = tile[1].bottom - self.rect.top
+                    dy = platform.rect.bottom - self.rect.top
                     self.vel_y = 0
-                    self.jump = False
                     
-            
             #check if above the ground (jumping)
             
                 elif self.vel_y > 0:
-                    dy = tile[1].top - self.rect.bottom
+                    dy = platform.rect.top - self.rect.bottom
                     self.vel_y = 0
                     self.jump = False
-                    
-            
+
             
         #ensure players face each other
         
@@ -273,5 +273,7 @@ class Fighter():
     def draw(self, surface):
         
         img = pygame.transform.flip(self.image, self.flip, False)
+        #for platforms in self.map.platforms:
+            #pygame.draw.rect(surface, (255,255,255), platforms.rect)
         #pygame.draw.rect(surface, (255,0,0) , self.rect)
         surface.blit(img, ((self.rect.x - (self.offset[0] * self.scale)), (self.rect.y - (self.offset[1] * self.scale))))        

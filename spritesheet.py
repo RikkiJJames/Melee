@@ -18,10 +18,11 @@ class SpriteSheet:
 
     def get_sprite(self, frame, width, height, scale):
         
-        sprite = pygame.Surface((width, height))
-        sprite.set_colorkey((0,0,0))
+        sprite = pygame.Surface((width, height), pygame.SRCALPHA)
+        #sprite.set_colorkey((0,0,0))
         sprite.blit(self.sheet, (0,0),((frame * width) , 0, width, height))
         sprite = pygame.transform.scale(sprite, (width * scale , height * scale))
+        print(sprite.get_rect())
         
         return sprite
     

@@ -21,7 +21,7 @@ class Character_Data:
         self.offset_y = self.get_data(class_name, "offset_y")
         self.sprite_size_x = self.get_data(class_name, "sprite_size_x")
         self.sprite_size_y = self.get_data(class_name, "sprite_size_y")
-        
+            
     def get_data(self, class_name, header):
         with open("characters.csv", newline="") as file:
             reader = csv.reader(file, delimiter = ",")
