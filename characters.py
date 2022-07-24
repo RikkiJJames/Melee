@@ -66,7 +66,7 @@ class Characters():
         self.scale = self.character_data.scale
         self.offset = [self.character_data.offset_x, self.character_data.offset_y]
         self.sprite_size = [self.character_data.sprite_size_x, self.character_data.sprite_size_y]
-        self.data = [self.character_data.file_root, self.size, self.animation_steps, self.scale, self.offset, self.sprite_size]
+        self.data = [self.character_data.file_root, self.size, self.animation_steps, self.scale, self.offset, self.sprite_size, self.name]
     
     def new_character(self):
         

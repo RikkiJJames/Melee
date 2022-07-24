@@ -4,7 +4,8 @@ from spritesheet import SpriteSheet
 
 class Fighter():
     
-    def __init__(self,player, x, y, flip, data,tiled_map, sound):
+    def __init__(self, player, x, y, flip, data, tiled_map, sound):
+        self.name = data[6]
         self.player = player
         self.size = data[1]
         self.scale = data[3]

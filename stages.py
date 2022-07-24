@@ -26,7 +26,8 @@ class Stages:
 
     def select_stage(self):
         
-        self.stage = random.choice(self.stages)
+        #self.stage = random.choice(self.stages)
+        self.stage = self.stages[0]
         self.stages.remove(self.stage)
         
         return self.stage

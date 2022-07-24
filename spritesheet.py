@@ -22,7 +22,6 @@ class SpriteSheet:
         #sprite.set_colorkey((0,0,0))
         sprite.blit(self.sheet, (0,0),((frame * width) , 0, width, height))
         sprite = pygame.transform.scale(sprite, (width * scale , height * scale))
-        print(sprite.get_rect())
         
         return sprite
     
